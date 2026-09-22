@@ -31,13 +31,13 @@ jobs:
           echo "- Statut : ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
       - name: SonarQube Cloud Scan
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
+          if [ "$GH_EVENT_NAME" = "pull_request" ]; then
             mvn -q -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.qualitygate.wait=true \
-              -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
-              -Dsonar.pullrequest.branch=${{ github.head_ref }} \
-              -Dsonar.pullrequest.base=${{ github.base_ref }}
+              -Dsonar.pullrequest.key="$PR_NUMBER" \
+              -Dsonar.pullrequest.branch="$PR_HEAD_REF" \
+              -Dsonar.pullrequest.base="$PR_BASE_REF"
           else
             mvn -q -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
               -Dsonar.host.url=https://sonarcloud.io \
@@ -46,3 +46,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GH_EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_REF: ${{ github.head_ref }}
+          PR_BASE_REF: ${{ github.base_ref }}
